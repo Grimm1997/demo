@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        #box1 {
+            width: 220px;
+            height: 180px;
+            background-color: cyan;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        #child {
+            width: 13px;
+            height: 13px;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            cursor: nwse-resize;
+            border-radius: 8px;
+            background-color: black;
+            z-index: 99;
+        }
+
+        p {
+            flex-shrink: 0;
+            margin: 0;
+            padding: 0;
+            background-color: red;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="box1">
+        <p id="title">123123</p>
+        <button id="btn1">最大化</button>
+        <button id="btn2">全屏</button>
+        <button id="btn3">退出最大化</button>
+        <div id="child"></div>
+    </div>
+
+    <script>
+        const title = document.querySelector('#title')
+        title.onmousedown = function (e) {
+            e.stopPropagation
+            title.style.cursor = 'move'
+            // 获取鼠标在盒子内的距离
+            let moveX = e.pageX - title.parentNode.offsetLeft
+            let moveY = e.pageY - title.parentNode.offsetTop
+            window.onmousemove = function (event) {
+                event.stopPropagation
+                title.parentNode.style.position = 'absolute'
+                // 当前鼠标坐标-盒内距离 = 父元素的左上角坐标
+                let left = event.pageX - moveX + 'px'
+                let top = event.pageY - moveY + 'px'
+                title.parentNode.style.left = left
+                title.parentNode.style.top = top
+            }
+            window.onmouseup = function () {
+                title.style.cursor = 'default'
+                window.onmousemove = window.onmouseup = null
+            }
+        }
+
+        const child = document.querySelector('#child')
+        child.onmousedown = function (e) {
+            e.stopPropagation
+            child.style.cursor = 'nwse-resize'
+            // 初始坐标
+            let startX = e.screenX
+            let startY = e.screenY
+            window.onmousemove = function (event) {
+                event.stopPropagation
+                // 当前鼠标坐标-初始位置 = 变化的坐标
+                const changeWidth = event.screenX - startX
+                const changeHeight = event.screenY - startY
+                // 每次移动时都对初始坐标更新
+                startX = event.screenX
+                startY = event.screenY
+                child.parentNode.style.width = child.parentNode.offsetWidth + changeWidth + 'px'
+                child.parentNode.style.height = child.parentNode.offsetHeight + changeHeight + 'px'
+            }
+            window.onmouseup = function () {
+                child.style.cursor = 'default'
+                window.onmousemove = window.onmouseup = null
+            }
+        }
+
+
+        const btn1 = document.querySelector('#btn1')
+        btn1.onclick = function (e) {
+            const box1 = document.querySelector('#box1')
+            box1.style.width = '100%'
+            box1.style.height = '100%'
+        }
+
+        const btn2 = document.querySelector('#btn2')
+        btn2.onclick = function (e) {
+            const box1 = document.querySelector('#box1')
+            requestFullScreen(box1)
+        }
+
+        const btn3 = document.querySelector('#btn3')
+        btn3.onclick = function (e) {
+            const box1 = document.querySelector('#box1')
+            box1.style.width = '220px'
+            box1.style.height = '180px'
+        }
+
+        //FullScreen
+        function requestFullScreen(child) {
+            if (child.requestFullscreen) {
+                child.requestFullscreen();
+            } else if (child.mozRequestFullScreen) {
+                child.mozRequestFullScreen();
+            } else if (child.webkitRequestFullScreen) {
+                child.webkitRequestFullScreen();
+            }
+        }
+        //EXIT FULLSCREEN
+        function exitFullscreen(child) {
+            if (child.exitFullscreen) {
+                child.exitFullscreen();
+            } else if (child.mozCancelFullScreen) {
+                child.mozCancelFullScreen();
+            } else if (child.webkitCancelFullScreen) {
+                child.webkitCancelFullScreen();
+            }
+        }
+    </script>
+</body>
+
+</html>
